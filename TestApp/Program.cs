@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace TestApp
 {
@@ -7,10 +10,11 @@ namespace TestApp
 
         public static List<User> users = new List<User>();
         public static bool killProgram = false;
+        public string filePath = "db.json";
 
         static void Main(string[] args)
         {
-
+            LoadData();
             while (killProgram == false)
             {
                 string? userSelection;
@@ -25,6 +29,7 @@ namespace TestApp
 
             if (killProgram == true)
             {
+                SaveData();
                 Environment.Exit(0);
             }
         }
@@ -261,6 +266,45 @@ namespace TestApp
                     }
                     break;
             }
+        }
+
+        static void SaveData()
+        {
+            string jsonData = JsonConvert.SerializeObject(users);
+            string fileName = "db.json";
+
+            if (!File.Exists(fileName))
+            {
+                using (StreamWriter sw = new StreamWriter(fileName))
+                {
+                    sw.WriteLine(jsonData);
+                }
+            }
+            if (File.Exists(fileName))
+            {
+                File.Delete(fileName);
+
+                using (StreamWriter sw = new StreamWriter(fileName))
+                {
+                    sw.WriteLine(jsonData);
+                }
+            }
+        }
+
+        static void LoadData()
+        {
+            string curFile = "db.json";
+            if (File.Exists(curFile))
+            {
+                using (StreamReader sr = new StreamReader(curFile))
+                {
+                    string content = sr.ReadToEnd();
+                    users.Clear();
+
+                    users = JsonConvert.DeserializeObject<List<User>>(content);
+                }
+            }
+            
         }
 
 
